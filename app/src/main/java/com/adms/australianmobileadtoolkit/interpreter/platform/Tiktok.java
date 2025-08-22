@@ -197,7 +197,7 @@ public class Tiktok {
             output.put("tiktokPercentage", tiktokPercentage);
             output.put("frameResults", frameResults);
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
 
         return output;
@@ -407,14 +407,14 @@ public class Tiktok {
             nFrames = (Integer) thisVideoMetadata.get("METADATA_KEY_VIDEO_FRAME_COUNT");
             videoDuration = (Integer) thisVideoMetadata.get("METADATA_KEY_DURATION");
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
         //Extracts the total frame count and video duration
         try {
             nFrames = (Integer) thisVideoMetadata.get("METADATA_KEY_VIDEO_FRAME_COUNT");
             videoDuration = (Integer) thisVideoMetadata.get("METADATA_KEY_DURATION");
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         };
 
         int interval = (int) Math.floor((double) nFrames / nScreenshotsToGrab);
@@ -475,7 +475,7 @@ public class Tiktok {
         try {
             statistics = frameSampleMetadata.optJSONObject("statistics");
         } catch (Exception e) {
-            logger.error("Error retrieving statistics from frameSampleMetadata: ", e);
+            logger("ERROR: Error retrieving statistics from frameSampleMetadata: " + e.toString());
         }
         List<Integer> runningListOfFrames = null;
         if (statistics != null) {
@@ -543,7 +543,7 @@ public class Tiktok {
             statistics.put("strideY", strideY);
             statistics.put("h", h);
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
         return statistics;
     }
@@ -592,7 +592,7 @@ public class Tiktok {
             strideY = (Integer) FSAJ.get("strideY");
             h = (Integer) FSAJ.get("h");
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
         final HashMap<Integer, HashMap<Integer, Integer>> FSA = FSANF;
 
@@ -762,7 +762,7 @@ public class Tiktok {
             statistics.put("offsetWithMaxSimilarity", determinedOffset);
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
 
         return statistics;
@@ -805,7 +805,7 @@ public class Tiktok {
         //    wsColor = (Integer) outputOfQuickReading.get("denotedColour");
         //} catch (Exception e) {
 
-        //    logger.error(e);
+        //    logger("ERROR: " + e.toString());
         //}
 
         try {
@@ -1032,7 +1032,7 @@ public class Tiktok {
                                     thisComparison.put("comparisonResult", comparisonResult);
                                 } catch (Exception e) {
 
-                                    logger.error(e);
+                                    logger("ERROR: " + e.toString());
                                 }
                                 frameComparisonStructure.add(thisComparison);
                             }
@@ -1053,7 +1053,7 @@ public class Tiktok {
                 }
 
                 // Sort the results
-                Collections.sort(frameComparisonStructure, new SortByLastFrame());
+                Collections.sort(frameComparisonStructure, new Platform.SortByLastFrame());
 
                 adjustingInterval = (int) Math.floor(adjustingInterval / adjustingIntervalDivisionFactor);
                 if (adjustingInterval < intervalMinimumComparable) {
@@ -1068,7 +1068,7 @@ public class Tiktok {
                     return (((JSONObject) x.get("comparisonResult")).get("outcome") != "TOO_SIMILAR");
                 } catch (Exception e) {
 
-                    logger.error(e);
+                    logger("ERROR: " + e.toString());
                     return false;
                 } } ).collect(Collectors.toList());
 
@@ -1106,7 +1106,7 @@ public class Tiktok {
                                             && (Objects.equals(x.get("currentFrame"), frameNext)));
                                 } catch (Exception e) {
 
-                                    logger.error(e);
+                                    logger("ERROR: " + e.toString());
                                     return false;
                                 }
                             }),
@@ -1116,7 +1116,7 @@ public class Tiktok {
                                             && (Objects.equals(x.get("currentFrame"), frameNext)));
                                 } catch (Exception e) {
 
-                                    logger.error(e);
+                                    logger("ERROR: " + e.toString());
                                     return false;
                                 }
                             })).collect(Collectors.toList());
@@ -1165,12 +1165,12 @@ public class Tiktok {
             // frameComparisonStructure // TODO - preserve matched offsets
 
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
             try {
                 output.put("error", e.getMessage());
             } catch (JSONException e2) {
 
-                logger.error(e2);
+                logger("ERROR: " + e2.toString());
             }
         }
         return output;

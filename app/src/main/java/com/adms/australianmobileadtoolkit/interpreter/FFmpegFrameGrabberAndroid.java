@@ -152,7 +152,7 @@ public class FFmpegFrameGrabberAndroid {
          } catch (Exception e) {
             // It's expected that this may occasionally produce an error (for instance, when the last or near last frame
             // doesn't exist)
-            logger.error(e);
+            logger(e.toString());
             return null;
          }
       } else if (ReturnCode.isCancel(session.getReturnCode())) {

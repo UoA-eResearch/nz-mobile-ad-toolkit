@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Platform utility class providing common functionality for the mobile ad toolkit.
@@ -44,6 +45,19 @@ public class Platform {
         }
     }
     
+    public static boolean createDirectory(File file, boolean mkdirs) {
+        try {
+            if (mkdirs) {
+                return file.mkdirs();
+            } else {
+                return file.mkdir();
+            }
+        } catch (Exception e) {
+            logger("Error creating directory: " + e.getMessage());
+            return false;
+        }
+    }
+    
     public static boolean directoryExists(String path) {
         File dir = new File(path);
         return dir.exists() && dir.isDirectory();
@@ -64,10 +78,23 @@ public class Platform {
         return file.delete();
     }
     
+    // Overload for File parameter
+    public static boolean deleteRecursive(File file) {
+        return deleteRecursive(file.getAbsolutePath());
+    }
+    
     // Platform interpretation routine - placeholder implementation
     public static void platformInterpretationRoutine() {
         logger("Platform interpretation routine called");
         // Placeholder implementation
+    }
+    
+    public static void platformInterpretationRoutine(android.content.Context context, File rootDirectory, 
+            java.util.function.Function<com.adms.australianmobileadtoolkit.JSONXObject, com.adms.australianmobileadtoolkit.JSONXObject> videoMetadataFunction,
+            java.util.function.Function<com.adms.australianmobileadtoolkit.JSONXObject, Bitmap> frameGrabFunction,
+            boolean flag) {
+        logger("Platform interpretation routine called with parameters");
+        // TODO: Implement proper interpretation routine
     }
     
     // File operations
@@ -116,6 +143,17 @@ public class Platform {
         return result;
     }
     
+    // Overload with position coordinates
+    public static Bitmap overlayBitmaps(Bitmap base, Bitmap overlay, int x, int y) {
+        if (base == null || overlay == null) return base;
+        
+        Bitmap result = Bitmap.createBitmap(base.getWidth(), base.getHeight(), base.getConfig());
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(base, 0, 0, null);
+        canvas.drawBitmap(overlay, x, y, null);
+        return result;
+    }
+    
     public static int averageColours(List<Integer> colors) {
         if (colors == null || colors.isEmpty()) return Color.BLACK;
         
@@ -140,11 +178,44 @@ public class Platform {
         return Color.red(pixel) > threshold && Color.green(pixel) > threshold && Color.blue(pixel) > threshold;
     }
     
+    // Extract a representative whitespace color from bitmap
+    public static int getWhitespaceColorFromBitmap(Bitmap bitmap) {
+        if (bitmap == null) return Color.WHITE;
+        
+        // Sample some pixels and find the most common light color
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        
+        // Sample from corners and center, typically whitespace areas
+        List<Integer> samplePixels = new ArrayList<>();
+        samplePixels.add(bitmap.getPixel(0, 0));
+        samplePixels.add(bitmap.getPixel(width-1, 0));
+        samplePixels.add(bitmap.getPixel(0, height-1));
+        samplePixels.add(bitmap.getPixel(width-1, height-1));
+        samplePixels.add(bitmap.getPixel(width/2, height/2));
+        
+        // Return the average of light pixels
+        List<Integer> lightPixels = samplePixels.stream()
+            .filter(pixel -> Color.red(pixel) > 200 && Color.green(pixel) > 200 && Color.blue(pixel) > 200)
+            .collect(Collectors.toList());
+            
+        return lightPixels.isEmpty() ? Color.WHITE : averageColours(lightPixels);
+    }
+    
     // Mathematical operations
     public static double getStandardDeviation(List<Double> values) {
         if (values == null || values.size() < 2) return 0.0;
         
         double mean = values.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        double variance = values.stream().mapToDouble(val -> Math.pow(val - mean, 2)).average().orElse(0.0);
+        return Math.sqrt(variance);
+    }
+    
+    // Overload for List<Integer>
+    public static double getStandardDeviationInt(List<Integer> values) {
+        if (values == null || values.size() < 2) return 0.0;
+        
+        double mean = values.stream().mapToDouble(Integer::doubleValue).average().orElse(0.0);
         double variance = values.stream().mapToDouble(val -> Math.pow(val - mean, 2)).average().orElse(0.0);
         return Math.sqrt(variance);
     }
@@ -161,8 +232,18 @@ public class Platform {
         return Math.max(min, Math.min(max, value));
     }
     
+    public static int forceToRange(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+    
     public static double randomInRange(double min, double max) {
         return min + (max - min) * random.nextDouble();
+    }
+    
+    // Overloads for different parameter types
+    public static int randomInRange(java.util.Random r, android.util.Pair<Integer, Integer> bounds) {
+        if (bounds == null) return 0;
+        return bounds.first + r.nextInt(Math.max(1, bounds.second - bounds.first + 1));
     }
     
     // Range operations
@@ -179,8 +260,26 @@ public class Platform {
         return r1.start <= r2.end && r2.start <= r1.end;
     }
     
+    // Overload for integer parameters
+    public static int rangesOverlap(int start1, int end1, int start2, int end2) {
+        if (start1 <= end2 && start2 <= end1) {
+            return 1; // overlap
+        }
+        return 0; // no overlap
+    }
+    
     public static Range orderRange(double a, double b) {
         return new Range(Math.min(a, b), Math.max(a, b));
+    }
+    
+    // Overloads for different parameter types
+    public static android.util.Pair<Integer, Integer> orderRange(List<Integer> range) {
+        if (range == null || range.size() < 2) {
+            return new android.util.Pair<>(0, 0);
+        }
+        int min = Math.min(range.get(0), range.get(1));
+        int max = Math.max(range.get(0), range.get(1));
+        return new android.util.Pair<>(min, max);
     }
     
     public static List<Range> discreteIntervalsToRanges(List<Integer> intervals) {
@@ -190,6 +289,20 @@ public class Platform {
         for (int i = 0; i < intervals.size() - 1; i += 2) {
             if (i + 1 < intervals.size()) {
                 ranges.add(new Range(intervals.get(i), intervals.get(i + 1)));
+            }
+        }
+        return ranges;
+    }
+    
+    // Overload for two-parameter version
+    public static List<Range> discreteIntervalsToRanges(List<Integer> intervals, List<Integer> consistent) {
+        List<Range> ranges = new ArrayList<>();
+        if (intervals == null || intervals.isEmpty() || consistent == null) return ranges;
+        
+        // Simple implementation - convert consistent list to ranges based on intervals
+        for (int i = 0; i < Math.min(intervals.size(), consistent.size() - 1); i += 2) {
+            if (i + 1 < consistent.size()) {
+                ranges.add(new Range(consistent.get(i), consistent.get(i + 1)));
             }
         }
         return ranges;
@@ -223,6 +336,37 @@ public class Platform {
         return result;
     }
     
+    // Overload for List<Integer> parameters
+    public static List<List<Integer>> subtractIntegerRanges(List<Integer> original, List<Integer> toSubtract) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (original == null || original.size() < 2) return result;
+        if (toSubtract == null || toSubtract.size() < 2) {
+            result.add(new ArrayList<>(original));
+            return result;
+        }
+        
+        int origStart = original.get(0);
+        int origEnd = original.get(1);
+        int subStart = toSubtract.get(0);
+        int subEnd = toSubtract.get(1);
+        
+        // If no overlap, return original range
+        if (rangesOverlap(origStart, origEnd, subStart, subEnd) == 0) {
+            result.add(new ArrayList<>(original));
+            return result;
+        }
+        
+        // Add parts that don't overlap
+        if (origStart < subStart) {
+            result.add(Arrays.asList(origStart, Math.min(origEnd, subStart)));
+        }
+        if (origEnd > subEnd) {
+            result.add(Arrays.asList(Math.max(origStart, subEnd), origEnd));
+        }
+        
+        return result;
+    }
+    
     // Utility operations
     public static List<Integer> generateSamplePositions(int total, int samples) {
         List<Integer> positions = new ArrayList<>();
@@ -241,6 +385,21 @@ public class Platform {
         return positions;
     }
     
+    // Overload for Facebook compatibility
+    public static android.util.Pair<Integer, List<Integer>> generateSamplePositions(int nSamples, int lowerBound, int upperBound) {
+        List<Integer> positions = new ArrayList<>();
+        int range = upperBound - lowerBound;
+        if (nSamples <= 0 || range <= 0) {
+            return new android.util.Pair<>(0, positions);
+        }
+        
+        double step = (double) range / nSamples;
+        for (int i = 0; i < nSamples; i++) {
+            positions.add((int) Math.round(lowerBound + i * step));
+        }
+        return new android.util.Pair<>(positions.size(), positions);
+    }
+    
     public static List<Integer> boundsOnStride(int start, int end, int stride) {
         List<Integer> bounds = new ArrayList<>();
         for (int i = start; i <= end; i += stride) {
@@ -250,6 +409,13 @@ public class Platform {
             bounds.add(end);
         }
         return bounds;
+    }
+    
+    // Overload for Facebook compatibility
+    public static android.util.Pair<Integer, Integer> boundsOnStride(int strideSize, int stridePosition, int lowerBound, int upperBound) {
+        int start = Math.max(lowerBound, stridePosition * strideSize);
+        int end = Math.min(upperBound, start + strideSize - 1);
+        return new android.util.Pair<>(start, end);
     }
     
     // JSON operations
@@ -265,11 +431,32 @@ public class Platform {
         }
     }
     
+    // Overload for File parameter and generic Object
+    public static boolean writeToJSON(File file, Object data) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("data", data);
+            return writeToJSON(json, file.getAbsolutePath());
+        } catch (Exception e) {
+            logger("Error writing object to JSON: " + e.getMessage());
+            return false;
+        }
+    }
+    
     public static void printJSON(JSONObject json) {
         try {
             logger("JSON", json.toString(2));
         } catch (JSONException e) {
             logger("Error printing JSON: " + e.getMessage());
+        }
+    }
+    
+    // Overloads for different types
+    public static void printJSON(Object obj) {
+        if (obj instanceof JSONObject) {
+            printJSON((JSONObject) obj);
+        } else {
+            logger("OBJECT", obj.toString());
         }
     }
     
@@ -285,5 +472,41 @@ public class Platform {
             Thread.currentThread().interrupt();
             logger("Sleep interrupted: " + e.getMessage());
         }
+    }
+    
+    // Convert List<Range> to List<List<Integer>>
+    public static List<List<Integer>> rangesToIntegerLists(List<Range> ranges) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (ranges != null) {
+            for (Range range : ranges) {
+                result.add(Arrays.asList((int)range.start, (int)range.end));
+            }
+        }
+        return result;
+    }
+    
+    // Comparator class for sorting frame comparison structures
+    public static class SortByLastFrame implements java.util.Comparator<JSONObject> {
+        @Override
+        public int compare(JSONObject a, JSONObject b) {
+            try {
+                int lastFrameA = a.optInt("lastFrame", 0);
+                int lastFrameB = b.optInt("lastFrame", 0);
+                return Integer.compare(lastFrameA, lastFrameB);
+            } catch (Exception e) {
+                logger("Error comparing JSONObjects in SortByLastFrame: " + e.getMessage());
+                return 0;
+            }
+        }
+    }
+    
+    public static String filenameUnextended(File file) {
+        String name = file.getName();
+        int lastDot = name.lastIndexOf('.');
+        return lastDot > 0 ? name.substring(0, lastDot) : name;
+    }
+    
+    public static boolean writeToJSON(File file, JSONObject json) {
+        return writeToJSON(json, file.getAbsolutePath());
     }
 }
