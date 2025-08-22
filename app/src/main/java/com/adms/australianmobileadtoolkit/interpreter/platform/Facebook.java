@@ -1141,7 +1141,7 @@ public class Facebook {
                 }
 
                 // Sort the results
-                Collections.sort(frameComparisonStructure, new SortByLastFrame());
+                Collections.sort(frameComparisonStructure, new Platform.SortByLastFrame());
 
                 adjustingInterval = (int) Math.floor(adjustingInterval / adjustingIntervalDivisionFactor);
                 if (adjustingInterval < intervalMinimumComparable) {
@@ -2367,7 +2367,7 @@ public class Facebook {
                             // If the ranges of both overlap...
                             if (rangesOverlap(iR.first, iR.second, wR.first, wR.second) != 0) {
                                 // Derive new ranges from their difference
-                                List<List<Integer>> derivedRanges = subtractRanges(thisWhitespaceRange, thisInhibitedRange);
+                                List<List<Integer>> derivedRanges = subtractIntegerRanges(thisWhitespaceRange, thisInhibitedRange);
                                 // Append the new ranges to the temporary aggregation of all ranges
                                 frameWhitespaceRangesTemp = Stream.concat(frameWhitespaceRangesTemp.stream(), derivedRanges.stream()).collect(Collectors.toList());
                             } else {

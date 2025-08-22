@@ -11,7 +11,6 @@ public class S3Uploader {
     }
 
     public static void uploadFolderToS3(Object s3, String bucketName, String folderPath, String s3FolderKey) {
-    public static void uploadFolderToS3(Object s3, String bucketName, String folderPath, String s3FolderKey) {
         File folder = new File(folderPath);
 
         // Validate the folder path

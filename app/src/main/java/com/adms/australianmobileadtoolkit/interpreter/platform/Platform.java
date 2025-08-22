@@ -182,8 +182,18 @@ public class Platform {
         return Math.max(min, Math.min(max, value));
     }
     
+    public static int forceToRange(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+    
     public static double randomInRange(double min, double max) {
         return min + (max - min) * random.nextDouble();
+    }
+    
+    // Overloads for different parameter types
+    public static int randomInRange(java.util.Random r, android.util.Pair<Integer, Integer> bounds) {
+        if (bounds == null) return 0;
+        return bounds.first + r.nextInt(Math.max(1, bounds.second - bounds.first + 1));
     }
     
     // Range operations
@@ -200,8 +210,26 @@ public class Platform {
         return r1.start <= r2.end && r2.start <= r1.end;
     }
     
+    // Overload for integer parameters
+    public static int rangesOverlap(int start1, int end1, int start2, int end2) {
+        if (start1 <= end2 && start2 <= end1) {
+            return 1; // overlap
+        }
+        return 0; // no overlap
+    }
+    
     public static Range orderRange(double a, double b) {
         return new Range(Math.min(a, b), Math.max(a, b));
+    }
+    
+    // Overloads for different parameter types
+    public static android.util.Pair<Integer, Integer> orderRange(List<Integer> range) {
+        if (range == null || range.size() < 2) {
+            return new android.util.Pair<>(0, 0);
+        }
+        int min = Math.min(range.get(0), range.get(1));
+        int max = Math.max(range.get(0), range.get(1));
+        return new android.util.Pair<>(min, max);
     }
     
     public static List<Range> discreteIntervalsToRanges(List<Integer> intervals) {
@@ -244,6 +272,37 @@ public class Platform {
         return result;
     }
     
+    // Overload for List<Integer> parameters
+    public static List<List<Integer>> subtractIntegerRanges(List<Integer> original, List<Integer> toSubtract) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (original == null || original.size() < 2) return result;
+        if (toSubtract == null || toSubtract.size() < 2) {
+            result.add(new ArrayList<>(original));
+            return result;
+        }
+        
+        int origStart = original.get(0);
+        int origEnd = original.get(1);
+        int subStart = toSubtract.get(0);
+        int subEnd = toSubtract.get(1);
+        
+        // If no overlap, return original range
+        if (rangesOverlap(origStart, origEnd, subStart, subEnd) == 0) {
+            result.add(new ArrayList<>(original));
+            return result;
+        }
+        
+        // Add parts that don't overlap
+        if (origStart < subStart) {
+            result.add(Arrays.asList(origStart, Math.min(origEnd, subStart)));
+        }
+        if (origEnd > subEnd) {
+            result.add(Arrays.asList(Math.max(origStart, subEnd), origEnd));
+        }
+        
+        return result;
+    }
+    
     // Utility operations
     public static List<Integer> generateSamplePositions(int total, int samples) {
         List<Integer> positions = new ArrayList<>();
@@ -262,6 +321,21 @@ public class Platform {
         return positions;
     }
     
+    // Overload for Facebook compatibility
+    public static android.util.Pair<Integer, List<Integer>> generateSamplePositions(int nSamples, int lowerBound, int upperBound) {
+        List<Integer> positions = new ArrayList<>();
+        int range = upperBound - lowerBound;
+        if (nSamples <= 0 || range <= 0) {
+            return new android.util.Pair<>(0, positions);
+        }
+        
+        double step = (double) range / nSamples;
+        for (int i = 0; i < nSamples; i++) {
+            positions.add((int) Math.round(lowerBound + i * step));
+        }
+        return new android.util.Pair<>(positions.size(), positions);
+    }
+    
     public static List<Integer> boundsOnStride(int start, int end, int stride) {
         List<Integer> bounds = new ArrayList<>();
         for (int i = start; i <= end; i += stride) {
@@ -271,6 +345,13 @@ public class Platform {
             bounds.add(end);
         }
         return bounds;
+    }
+    
+    // Overload for Facebook compatibility
+    public static android.util.Pair<Integer, Integer> boundsOnStride(int strideSize, int stridePosition, int lowerBound, int upperBound) {
+        int start = Math.max(lowerBound, stridePosition * strideSize);
+        int end = Math.min(upperBound, start + strideSize - 1);
+        return new android.util.Pair<>(start, end);
     }
     
     // JSON operations
@@ -294,6 +375,15 @@ public class Platform {
         }
     }
     
+    // Overloads for different types
+    public static void printJSON(Object obj) {
+        if (obj instanceof JSONObject) {
+            printJSON((JSONObject) obj);
+        } else {
+            logger("OBJECT", obj.toString());
+        }
+    }
+    
     // Utility methods
     public static String getCurrentTimestamp() {
         return String.valueOf(System.currentTimeMillis());
@@ -305,6 +395,21 @@ public class Platform {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             logger("Sleep interrupted: " + e.getMessage());
+        }
+    }
+    
+    // Comparator class for sorting frame comparison structures
+    public static class SortByLastFrame implements java.util.Comparator<JSONObject> {
+        @Override
+        public int compare(JSONObject a, JSONObject b) {
+            try {
+                int lastFrameA = a.optInt("lastFrame", 0);
+                int lastFrameB = b.optInt("lastFrame", 0);
+                return Integer.compare(lastFrameA, lastFrameB);
+            } catch (Exception e) {
+                logger("Error comparing JSONObjects in SortByLastFrame: " + e.getMessage());
+                return 0;
+            }
         }
     }
     

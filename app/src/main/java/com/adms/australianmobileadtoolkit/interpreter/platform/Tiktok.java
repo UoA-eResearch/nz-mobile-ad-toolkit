@@ -1053,7 +1053,7 @@ public class Tiktok {
                 }
 
                 // Sort the results
-                Collections.sort(frameComparisonStructure, new SortByLastFrame());
+                Collections.sort(frameComparisonStructure, new Platform.SortByLastFrame());
 
                 adjustingInterval = (int) Math.floor(adjustingInterval / adjustingIntervalDivisionFactor);
                 if (adjustingInterval < intervalMinimumComparable) {
