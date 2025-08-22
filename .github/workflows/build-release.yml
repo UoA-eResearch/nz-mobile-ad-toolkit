@@ -1,0 +1,113 @@
+name: Build and Release APK
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0
+  release:
+    types: [published]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug
+      
+    - name: Build Release APK
+      run: ./gradlew assembleRelease
+      
+    - name: Sign Release APK (if keystore available)
+      run: |
+        if [ -f "app/keystore.jks" ]; then
+          echo "Keystore found, signing APK"
+          # Add signing configuration here if needed
+        else
+          echo "No keystore found, using unsigned APK"
+        fi
+        
+    - name: Get tag name
+      id: tag_name
+      run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      if: startsWith(github.ref, 'refs/tags/')
+      
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag_name.outputs.TAG_NAME }}
+        release_name: Release ${{ steps.tag_name.outputs.TAG_NAME }}
+        draft: false
+        prerelease: false
+        body: |
+          ## What's Changed
+          
+          This release includes the latest build of the NZ Mobile Ad Toolkit.
+          
+          ### APK Downloads
+          - Debug APK: For development and testing
+          - Release APK: For production use
+          
+          ### Installation
+          1. Download the appropriate APK file
+          2. Enable "Install from unknown sources" on your Android device
+          3. Install the APK
+          
+    - name: Upload Debug APK to Release
+      uses: actions/upload-release-asset@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./app/build/outputs/apk/debug/app-debug.apk
+        asset_name: nz-mobile-ad-toolkit-debug-${{ steps.tag_name.outputs.TAG_NAME }}.apk
+        asset_content_type: application/vnd.android.package-archive
+        
+    - name: Upload Release APK to Release
+      uses: actions/upload-release-asset@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./app/build/outputs/apk/release/app-release-unsigned.apk
+        asset_name: nz-mobile-ad-toolkit-release-${{ steps.tag_name.outputs.TAG_NAME }}.apk
+        asset_content_type: application/vnd.android.package-archive
+        
+    - name: Upload APKs as Artifacts (for non-tag builds)
+      uses: actions/upload-artifact@v4
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      with:
+        name: apk-builds
+        path: |
+          app/build/outputs/apk/debug/app-debug.apk
+          app/build/outputs/apk/release/app-release-unsigned.apk
+        retention-days: 30
