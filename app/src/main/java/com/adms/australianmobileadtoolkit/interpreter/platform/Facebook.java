@@ -16,11 +16,13 @@ import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.g
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.getStandardDeviation;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.getStandardDeviationD;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.getStandardDeviationDouble;
+import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.getStandardDeviationInt;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.logger;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.orderRange;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.overlayBitmaps;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.printJSON;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.randomInRange;
+import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.rangesToIntegerLists;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.rangesOverlap;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.saveBitmap;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.subtractRanges;
@@ -1890,7 +1892,7 @@ public class Facebook {
             // With the inhibited range, we are interested in the part that is prominent - we can derive this by taking the
             // smallest index of either FS and interpreting it as an interval - then we find a range of at least two
 
-            consistentListAsRanges = discreteIntervalsToRanges(consistentList);
+            consistentListAsRanges = rangesToIntegerLists(discreteIntervalsToRanges(consistentList));
         }
         return consistentListAsRanges;
     }

@@ -421,6 +421,17 @@ public class Platform {
         }
     }
     
+    // Convert List<Range> to List<List<Integer>>
+    public static List<List<Integer>> rangesToIntegerLists(List<Range> ranges) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (ranges != null) {
+            for (Range range : ranges) {
+                result.add(Arrays.asList((int)range.start, (int)range.end));
+            }
+        }
+        return result;
+    }
+    
     // Comparator class for sorting frame comparison structures
     public static class SortByLastFrame implements java.util.Comparator<JSONObject> {
         @Override
