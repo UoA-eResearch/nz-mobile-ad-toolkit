@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Platform utility class providing common functionality for the mobile ad toolkit.
@@ -77,6 +78,11 @@ public class Platform {
         return file.delete();
     }
     
+    // Overload for File parameter
+    public static boolean deleteRecursive(File file) {
+        return deleteRecursive(file.getAbsolutePath());
+    }
+    
     // Platform interpretation routine - placeholder implementation
     public static void platformInterpretationRoutine() {
         logger("Platform interpretation routine called");
@@ -137,6 +143,17 @@ public class Platform {
         return result;
     }
     
+    // Overload with position coordinates
+    public static Bitmap overlayBitmaps(Bitmap base, Bitmap overlay, int x, int y) {
+        if (base == null || overlay == null) return base;
+        
+        Bitmap result = Bitmap.createBitmap(base.getWidth(), base.getHeight(), base.getConfig());
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(base, 0, 0, null);
+        canvas.drawBitmap(overlay, x, y, null);
+        return result;
+    }
+    
     public static int averageColours(List<Integer> colors) {
         if (colors == null || colors.isEmpty()) return Color.BLACK;
         
@@ -159,6 +176,30 @@ public class Platform {
         int pixel = bitmap.getPixel(x, y);
         int threshold = 240; // Consider pixels with RGB values above this as whitespace
         return Color.red(pixel) > threshold && Color.green(pixel) > threshold && Color.blue(pixel) > threshold;
+    }
+    
+    // Extract a representative whitespace color from bitmap
+    public static int getWhitespaceColorFromBitmap(Bitmap bitmap) {
+        if (bitmap == null) return Color.WHITE;
+        
+        // Sample some pixels and find the most common light color
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        
+        // Sample from corners and center, typically whitespace areas
+        List<Integer> samplePixels = new ArrayList<>();
+        samplePixels.add(bitmap.getPixel(0, 0));
+        samplePixels.add(bitmap.getPixel(width-1, 0));
+        samplePixels.add(bitmap.getPixel(0, height-1));
+        samplePixels.add(bitmap.getPixel(width-1, height-1));
+        samplePixels.add(bitmap.getPixel(width/2, height/2));
+        
+        // Return the average of light pixels
+        List<Integer> lightPixels = samplePixels.stream()
+            .filter(pixel -> Color.red(pixel) > 200 && Color.green(pixel) > 200 && Color.blue(pixel) > 200)
+            .collect(Collectors.toList());
+            
+        return lightPixels.isEmpty() ? Color.WHITE : averageColours(lightPixels);
     }
     
     // Mathematical operations
@@ -386,6 +427,18 @@ public class Platform {
             return true;
         } catch (Exception e) {
             logger("Error writing JSON: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    // Overload for File parameter and generic Object
+    public static boolean writeToJSON(File file, Object data) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("data", data);
+            return writeToJSON(json, file.getAbsolutePath());
+        } catch (Exception e) {
+            logger("Error writing object to JSON: " + e.getMessage());
             return false;
         }
     }

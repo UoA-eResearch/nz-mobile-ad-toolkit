@@ -17,6 +17,7 @@ import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.g
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.getStandardDeviationD;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.getStandardDeviationDouble;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.getStandardDeviationInt;
+import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.getWhitespaceColorFromBitmap;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.logger;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.orderRange;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.overlayBitmaps;
@@ -26,6 +27,7 @@ import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.r
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.rangesOverlap;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.saveBitmap;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.subtractRanges;
+import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.subtractIntegerRanges;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.whitespacePixelFromImage;
 import static com.adms.australianmobileadtoolkit.interpreter.platform.Platform.writeToJSON;
 import static com.adms.australianmobileadtoolkit.interpreter.visual.Visual.colourPalette;
@@ -1632,7 +1634,7 @@ public class Facebook {
                 break;
             }
             if ((areaStrip.size() >= convergenceNSamples)
-                    && (((int) Math.round(getStandardDeviation(areaStrip.subList(areaStrip.size()-convergenceNSamples, areaStrip.size())))) == 0)) {
+                    && (((int) Math.round(getStandardDeviationInt(areaStrip.subList(areaStrip.size()-convergenceNSamples, areaStrip.size())))) == 0)) {
                 find = false;
             } else {
                 if ((samplesSummarized.get("l").equals(samplesSummarized.get("r"))) && (samplesSummarized.get("l") == 1)) {
@@ -2758,7 +2760,7 @@ public class Facebook {
 
 
     public static JSONObject generateScreenshotStatistics(Bitmap thisBitmap, boolean verbose) {
-        int whitespaceColour = whitespacePixelFromImage(Args(A("bitmap", thisBitmap)));
+        int whitespaceColour = getWhitespaceColorFromBitmap(thisBitmap);
         int whitespaceColourR = Color.red(whitespaceColour);
         int whitespaceColourG = Color.green(whitespaceColour);
         int whitespaceColourB = Color.blue(whitespaceColour);
@@ -2850,12 +2852,12 @@ public class Facebook {
             List<Integer> pixelsGAsList = Arrays.stream(pixels).map(Color::green).boxed().collect(Collectors.toList());
             List<Integer> pixelsBAsList = Arrays.stream(pixels).map(Color::blue).boxed().collect(Collectors.toList());
 
-            int thisAverageColour = averageColours(Args(A("colors", pixelsAsList)));
-            int thisAverageColourR = averageColours(Args(A("colors", pixelsRAsList)));
-            int thisAverageColourG = averageColours(Args(A("colors", pixelsGAsList)));
-            int thisAverageColourB = averageColours(Args(A("colors", pixelsBAsList)));
+            int thisAverageColour = averageColours(pixelsAsList);
+            int thisAverageColourR = averageColours(pixelsRAsList);
+            int thisAverageColourG = averageColours(pixelsGAsList);
+            int thisAverageColourB = averageColours(pixelsBAsList);
 
-            int thisAverageColourOnEdge = averageColours(Args(A("colors", IntStream.range(0, 2).map(x -> pixelsAsList.get(x)).boxed().collect(Collectors.toList()))));
+            int thisAverageColourOnEdge = averageColours(IntStream.range(0, 2).map(x -> pixelsAsList.get(x)).boxed().collect(Collectors.toList()));
 
             double thisAverageColourDifferenceToWhitespacePixelPercentage = pixelDifferencePercentage(whitespaceColour, thisAverageColour);
             double thisAverageColourRDifferenceToWhitespacePixelRPercentage = pixelDifferencePercentage(whitespaceColourR, thisAverageColourR);
