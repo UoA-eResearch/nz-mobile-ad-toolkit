@@ -163,7 +163,7 @@ public class Facebook {
             output.put("pctConsistentGlobal", pctConsistentGlobal);
             output.put("strideY", ySample.first);
         } catch (Exception e) {
-            logger.error(e); }
+            logger("ERROR: " + e.toString()); }
         return output;
     }
 
@@ -216,7 +216,7 @@ public class Facebook {
             statistics.put("h", h);
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
 
         }
         return statistics;
@@ -290,7 +290,7 @@ public class Facebook {
             strideY = (Integer) FSAJ.get("strideY");
             h = (Integer) FSAJ.get("h");
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
         final HashMap<Integer, HashMap<Integer, Integer>> FSA = FSANF;
 
@@ -474,7 +474,7 @@ public class Facebook {
             statistics.put("offsetWithMaxSimilarity", determinedOffset);
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
 
         return statistics;
@@ -500,7 +500,7 @@ public class Facebook {
             pctConsistentGlobal = (HashMap<Integer, Double>) sampleFromImage.get("pctConsistentGlobal");
             strideY = (Integer) sampleFromImage.get("strideY");
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         };
 
         HashMap<Integer, Double> finalPctConsistentGlobal = pctConsistentGlobal;
@@ -586,7 +586,7 @@ public class Facebook {
                             thisCandidate.put("lowerBoundWS",lowerBoundWS);
                             thisCandidate.put("upperBoundWS",upperBoundWS);
                         } catch (Exception e) {
-                            logger.error(e);}
+                            logger("ERROR: " + e.toString());}
                         allCandidates.add(thisCandidate);
                     }
                     if (((extent > lowerBoundWS) && (extent < upperBoundWS)) && (pctOfWhole <= maxPctOfWhole)) {
@@ -605,7 +605,7 @@ public class Facebook {
         JSONObject highestRanked = new JSONObject();
         for (String exposureType : Arrays.asList("light", "dark")) {
             try { highestRanked.put(exposureType, null); } catch (Exception e) {
-                logger.error(e);}
+                logger("ERROR: " + e.toString());}
             for (JSONObject thisCandidate : possibleWhitespaces) {
                 String candidateExposureType = null;
                 Double candidateSimilarity = null;
@@ -615,7 +615,7 @@ public class Facebook {
                     candidateSimilarity = (double) thisCandidate.get("wsSimilarity");
                     candidateColour = (Integer) thisCandidate.get("thisColour");
                 } catch (Exception e) {
-                    logger.error(e);}
+                    logger("ERROR: " + e.toString());}
                 if (candidateExposureType.equals(exposureType)) {
                     JSONObject highestRankedForExposureType = null;
                     Double highestRankedForExposureTypeSimilarity = null;
@@ -632,7 +632,7 @@ public class Facebook {
                             derivedExposure = exposureType;
                             derivedWSColour = candidateColour;
                         } catch (Exception e) {
-                            logger.error(e);}
+                            logger("ERROR: " + e.toString());}
                     }
                 }
             }
@@ -646,7 +646,7 @@ public class Facebook {
             output.put("highestRanked", highestRanked);
             output.put("allCandidates", allCandidates);
         } catch (Exception e) {
-            logger.error(e); }
+            logger("ERROR: " + e.toString()); }
         return output;
     }
 
@@ -701,7 +701,7 @@ public class Facebook {
                     ofExposure = ((JSONObject)
                             thisReading.get("highestRanked")).has(exposureType);
                 } catch (Exception e) {
-                    logger.error(e);
+                    logger("ERROR: " + e.toString());
                 }
                 if (ofFacebook && ofExposure) {
                     try {
@@ -712,7 +712,7 @@ public class Facebook {
                         }
                     } catch (Exception e) {
 
-                        logger.error(e);
+                        logger("ERROR: " + e.toString());
                     }
                     nValidReadings ++;
                 }
@@ -734,7 +734,7 @@ public class Facebook {
             output.put("of", dominantExposurePercentage >= 0.5);
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
 
         }
 
@@ -759,7 +759,7 @@ public class Facebook {
             nFrames = (Integer) thisVideoMetadata.get("METADATA_KEY_VIDEO_FRAME_COUNT");
             videoDuration = (Integer) thisVideoMetadata.get("METADATA_KEY_DURATION");
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         };
         Integer interval = (int) Math.floor(nFrames/ (double) nScreenshotsToGrab);
         if ((nFrames == 0) || (interval == 0)) {
@@ -785,7 +785,7 @@ public class Facebook {
                     logger.info("Reached 'null' Bitmap at frame "+f+"/"+nFrames);
                 }
             } catch (Exception e) {
-                logger.error(e);
+                logger("ERROR: " + e.toString());
                 readings.put(f, null);
             }
 
@@ -893,7 +893,7 @@ public class Facebook {
             wsColor = (Integer) outputOfQuickReading.get("denotedColour");
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
 
         try {
@@ -1120,7 +1120,7 @@ public class Facebook {
                                     thisComparison.put("comparisonResult", comparisonResult);
                                 } catch (Exception e) {
 
-                                    logger.error(e);
+                                    logger("ERROR: " + e.toString());
                                 }
                                 frameComparisonStructure.add(thisComparison);
                             }
@@ -1156,7 +1156,7 @@ public class Facebook {
                     return (((JSONObject) x.get("comparisonResult")).get("outcome") != "TOO_SIMILAR");
                 } catch (Exception e) {
 
-                    logger.error(e);
+                    logger("ERROR: " + e.toString());
                     return false;
                 } } ).collect(Collectors.toList());
 
@@ -1192,7 +1192,7 @@ public class Facebook {
                                             && (Objects.equals(x.get("currentFrame"), frameNext)));
                                 } catch (Exception e) {
 
-                                    logger.error(e);
+                                    logger("ERROR: " + e.toString());
                                     return false;
                                 }
                             }),
@@ -1202,7 +1202,7 @@ public class Facebook {
                                             && (Objects.equals(x.get("currentFrame"), frameNext)));
                                 } catch (Exception e) {
 
-                                    logger.error(e);
+                                    logger("ERROR: " + e.toString());
                                     return false;
                                 }
                             })).collect(Collectors.toList());
@@ -1251,12 +1251,12 @@ public class Facebook {
             // frameComparisonStructure // TODO - preserve matched offsets
 
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
             try {
                 output.put("error", e.getMessage());
             } catch (JSONException e2) {
 
-                logger.error(e2);
+                logger("ERROR", e2);
             }
         }
         return output;
@@ -1368,7 +1368,7 @@ public class Facebook {
             output.put("w", stencilW);
             output.put("h", stencilH);
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
 
         return output;
@@ -1386,7 +1386,7 @@ public class Facebook {
             output.put("h", thisFitter.get("h"));
             return output;
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
             return null;
         }
     }
@@ -1417,11 +1417,11 @@ public class Facebook {
             ftrH = (Integer) thisFitter.get("h");
             interest = new HashMap<String, Integer>((HashMap<String, Integer>) thisFitter.get("interest"));
             alts.stream().forEach(x -> { try { thisFitterAlt.put(x, new ArrayList<List<Integer>>((List<List<Integer>>) thisFitter.get(x))); } catch (Exception e) {
-                logger.error(e);
+                logger("ERROR: " + e.toString());
             } });
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
 
         }
         // The maximum height of the fitter is set to be equal to approx. 4/5th of the
@@ -1518,7 +1518,7 @@ public class Facebook {
             adaptiveBoundary.put("h", adjInterestH);
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
 
         }
         if (verbose) {
@@ -1547,7 +1547,7 @@ public class Facebook {
             aW = (int) adaptiveBoundary.get("w");
             aH = (int) adaptiveBoundary.get("h");
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
         Boolean find = true;
         Double finderRatio = (thisImage.getWidth() / (double) prescribedMinVideoWidth);
@@ -1674,7 +1674,7 @@ public class Facebook {
             output.put("h", aH);
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
 
         }
         if (find) {
@@ -1688,7 +1688,7 @@ public class Facebook {
             output.put("elapsedTimeIsFacebookAdHeader", Math.abs(elapsedTimeIsFacebookAdHeader - System.currentTimeMillis()));
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
 
         }
         return output;
@@ -1712,7 +1712,7 @@ public class Facebook {
             output.put("outcome", "MATCHED");
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
 
         }
 
@@ -1721,7 +1721,7 @@ public class Facebook {
                 output.put("outcome", "UNMATCHED_BELOW_MINIMUM_ADAPTIVE_BOUNDARY_HEIGHT");
             } catch (Exception e) {
 
-                logger.error(e);
+                logger("ERROR: " + e.toString());
 
             }
             return isFacebookAdHeaderPassThrough(output, elapsedTimeIsFacebookAdHeader);
@@ -1733,45 +1733,45 @@ public class Facebook {
         long elapsedTimeColorQuantization = System.currentTimeMillis();
         Bitmap thisAppliedBitmap = colourQuantizeBitmap(Args(A("bitmap", thisBitmap), A("interval", 4)));
         try { output.put("elapsedTimeColorQuantization", Math.abs(elapsedTimeColorQuantization - System.currentTimeMillis())); } catch (Exception e) {
-            logger.error(e); }
+            logger("ERROR: " + e.toString()); }
 
         // Fit the fitter over the test image
         long elapsedTimeFitOnImage = System.currentTimeMillis();
         JSONObject adaptiveBoundary = fitterFitOnImage(thisFitter, thisAppliedBitmap, thisWSColor, null, false, null);
         try { output.put("elapsedTimeFitOnImage", Math.abs(elapsedTimeFitOnImage - System.currentTimeMillis())); } catch (Exception e) {
-            logger.error(e);}
+            logger("ERROR: " + e.toString());}
 
         // Find the boundary of the 'Sponsored' text
         if (adaptiveBoundary == null) {
             try {
                 output.put("outcome", "UNMATCHED_ADAPTIVE_BOUNDARY_NOT_FOUND");
             } catch (Exception e) {
-                logger.error(e); }
+                logger("ERROR: " + e.toString()); }
             return isFacebookAdHeaderPassThrough(output, elapsedTimeIsFacebookAdHeader);
         } else {
             try {
                 output.put("adaptiveBoundary", adaptiveBoundary);
             } catch (Exception e) {
-                logger.error(e); }
+                logger("ERROR: " + e.toString()); }
         }
 
         // Determine the sponsored text boundary
         long elapsedTimeFinderGenerate = System.currentTimeMillis();
         JSONObject sponsoredTextBoundary = finderGenerate(thisAppliedBitmap, adaptiveBoundary, thisWSColor, null, false, null);
         try { output.put("elapsedTimeFinderGenerate", Math.abs(elapsedTimeFinderGenerate - System.currentTimeMillis())); } catch (Exception e) {
-            logger.error(e); }
+            logger("ERROR: " + e.toString()); }
 
         if (sponsoredTextBoundary == null) {
             try {
                 output.put("outcome", "UNMATCHED_SPONSORED_TEXT_BOUNDARY_NOT_FOUND");
             } catch (Exception e) {
-                logger.error(e); }
+                logger("ERROR: " + e.toString()); }
             return isFacebookAdHeaderPassThrough(output, elapsedTimeIsFacebookAdHeader);
         } else {
             try {
                 output.put("sponsoredTextBoundary", sponsoredTextBoundary);
             } catch (Exception e) {
-                logger.error(e);}
+                logger("ERROR: " + e.toString());}
         }
         try {
 
@@ -1829,12 +1829,12 @@ public class Facebook {
                 output.put("outcome", ((matchResult >= desiredMatchResult) ? "MATCHED" : "UNMATCHED"));
                 output.put("matchResult", matchResult);
             } catch (Exception e) {
-                logger.error(e);}
+                logger("ERROR: " + e.toString());}
             try { output.put("elapsedTimePictogramComparison", Math.abs(elapsedTimePictogramComparison - System.currentTimeMillis())); } catch (Exception e) { }
 
             return isFacebookAdHeaderPassThrough(output, elapsedTimeIsFacebookAdHeader);
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
             try {
                 output.put("outcome", "UNMATCHED_SPONSORED_TEXT_ERROR");
             } catch (Exception ignored) { }
@@ -2059,7 +2059,7 @@ public class Facebook {
                     nSnippets ++;
                 } catch (Exception e) {
 
-                    logger.error(e);
+                    logger("ERROR: " + e.toString());
 
                 }
                 snippets.add(thisSnippet);
@@ -2072,7 +2072,7 @@ public class Facebook {
                 FSInterval = (Integer) signaturesMap.get(frames.get(0)).get("strideY");
             } catch (Exception e) {
 
-                logger.error(e);
+                logger("ERROR: " + e.toString());
 
             }
 
@@ -2089,7 +2089,7 @@ public class Facebook {
                         frameSignatures.add((HashMap<Integer, HashMap<Integer, Integer>>) (signaturesMap.get(frames.get(i))).get("frameSignature"));
                         frameSignaturesWS.add((HashMap<Integer, Boolean>) (signaturesMap.get(frames.get(i))).get("frameSignatureWS"));
                     } catch (Exception e) {
-                        logger.error(e);
+                        logger("ERROR: " + e.toString());
                     }
                 }
 
@@ -2104,7 +2104,7 @@ public class Facebook {
                     JSONObject thisSnippet = null;
                     try { thisSnippet = new JSONObject(thisSnippetRaw.toString()); } catch (Exception e) {
 
-                        logger.error(e);
+                        logger("ERROR: " + e.toString());
                     }
                     Integer upper = null;
                     Integer lower = null;
@@ -2117,7 +2117,7 @@ public class Facebook {
                         thisSnippet.put("lower", lower);
                     } catch (Exception e) {
 
-                        logger.error(e);
+                        logger("ERROR: " + e.toString());
 
                     }
 
@@ -2154,7 +2154,7 @@ public class Facebook {
                             thisSnippet.put("inhibitedRanges", adjustedInhibitedRange);
                         } catch (Exception e) {
 
-                            logger.error(e);
+                            logger("ERROR: " + e.toString());
                         }
 
                         if ((!perfectlyOverlapped) && (!outOfBounds)) {
@@ -2169,7 +2169,7 @@ public class Facebook {
                                 thisSnippet.put("whitespaceRanges", discreteIntervalsToRanges(FSInterval, isolatedFrameSignatureIntervals));
                             } catch (Exception e) {
 
-                                logger.error(e);
+                                logger("ERROR: " + e.toString());
 
                             }
 
@@ -2206,7 +2206,7 @@ public class Facebook {
                             return (((Integer) x.get("snippetID")) == finalThisSnippetID);
                         } catch (Exception e) {
 
-                            logger.error(e);
+                            logger("ERROR: " + e.toString());
                             return false;
                         }
                     }).collect(Collectors.toList());
@@ -2244,7 +2244,7 @@ public class Facebook {
                     thisSnippet.put("whitespaceRanges", thisSnippetWhitespaceRanges);
                 } catch (Exception e) {
 
-                    logger.error(e);
+                    logger("ERROR: " + e.toString());
 
                 }
                 frameSnippetsCollapsed.add(thisSnippet);
@@ -2253,7 +2253,7 @@ public class Facebook {
             int b = 2;
 
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
         //System.exit(0);
         return frameSnippetsCollapsed;
@@ -2321,7 +2321,7 @@ public class Facebook {
                 maximumHeightOfFrameSnippet = (Integer) thisFrameSnippet.get("height");
             } catch (Exception e) {
 
-                logger.error(e);
+                logger("ERROR: " + e.toString());
 
 
             }
@@ -2412,7 +2412,7 @@ public class Facebook {
                                     determinedAsFacebookAd = true;
                                 }
                             } catch (Exception e) {
-                                logger.error(e);
+                                logger("ERROR: " + e.toString());
                             }
                             frameFacebookAdHeaderDetections.put(thisFrame, result);
 
@@ -2441,7 +2441,7 @@ public class Facebook {
                             thisFrameBitmap.setPixels(pixelFill, 0, 0, 0, iR.first, w, h);
                         } catch (Exception e) {
 
-                            logger.error(e);
+                            logger("ERROR: " + e.toString());
 
                         } // TODO - investigate errors here
                     }
@@ -2486,14 +2486,14 @@ public class Facebook {
                 statistics.put("determinedAsFacebookAd", determinedAsFacebookAd);
                 statistics.put("elapsedTimeToGenerateSnippetCroppings", Math.abs(elapsedTimeToGenerateSnippetCroppings - System.currentTimeMillis()));
             } catch (Exception e) {
-                logger.error(e);
+                logger("ERROR: " + e.toString());
             }
         } catch (Exception eX) {
             int a = 1;
             int b = 2;
             logger.info(eX.getStackTrace()[0].getLineNumber());
             logger.info(eX.getCause());
-            logger.error(eX);
+            logger("ERROR: " + eX.toString());
         }
 
         return statistics;
@@ -2517,7 +2517,7 @@ public class Facebook {
             masterOffsetChain = ((List<JSONObject>) ((JSONObject) frameSampleMetadata.get("statistics")).get("offsetChain"));
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
 
         }
 
@@ -2538,7 +2538,7 @@ public class Facebook {
                         offsetWithMaxSimilarity = ((Integer) (comparisonResult.get("offsetWithMaxSimilarity")));
                     }
                 } catch (Exception e) {
-                    logger.error(e); }
+                    logger("ERROR: " + e.toString()); }
 
                 String outcome = ((String) ((JSONObject) thisComparison.get("comparisonResult")).get("outcome"));
                 Integer lastFrame = (Integer) thisComparison.get("lastFrame");
@@ -2589,7 +2589,7 @@ public class Facebook {
                 // Update the retainedLastFrame at the end of every iteration
                 retainedLastFrame = currentFrame;
             } catch (Exception e) {
-                logger.error(e);
+                logger("ERROR: " + e.toString());
                 // TODO - not yet reached in any tangible case
             }
         }
@@ -2597,7 +2597,7 @@ public class Facebook {
             statistics.put("offsetChains", offsetChains);
             statistics.put("elapsedTimeMasterOffsetChainToSubOffsetChains", Math.abs(elapsedTimeMasterOffsetChainToSubOffsetChains - System.currentTimeMillis()));
         } catch (Exception e) {
-            logger.error(e); }
+            logger("ERROR: " + e.toString()); }
         return statistics;
     }
 
@@ -2643,7 +2643,7 @@ public class Facebook {
             ArrayMaxPixelAdjacency = (HashMap<Integer, Double>) statistics.get("ArrayMaxPixelAdjacency");
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
 
         final int verticalStrideUnitFinal = verticalStrideUnit;
@@ -2946,7 +2946,7 @@ public class Facebook {
             statistics.put("ArrayPixels", ArrayPixels);
         } catch (Exception e) {
 
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
 
 
@@ -2976,7 +2976,7 @@ public class Facebook {
             try {
                 offsetChains = (List<HashMap<Integer, Integer>>) offsetChainsContainer.get("offsetChains");
             } catch (Exception e) {
-                logger.error(e);}
+                logger("ERROR: " + e.toString());}
 
             Integer heightOfFrame = null;
             HashMap<Integer, JSONObject> signaturesMap = null;
@@ -2984,7 +2984,7 @@ public class Facebook {
                 heightOfFrame = ((Integer) ((JSONObject) frameSampleMetadata.get("statistics")).get("h"));
                 signaturesMap = (HashMap<Integer, JSONObject>) ((JSONObject) frameSampleMetadata.get("statistics")).get("signaturesMap");
             } catch (Exception e) {
-                logger.error(e);}
+                logger("ERROR: " + e.toString());}
 
             // For each offset chain...
             Integer thisOffsetChainID = 0;
@@ -3047,7 +3047,7 @@ public class Facebook {
                             thisOffsetChainContainsAd = true;
                         }
                     } catch (Exception e) {
-                        logger.error(e);}
+                        logger("ERROR: " + e.toString());}
                 }
                 frameSnippetIDsByOffsetChains.put(thisOffsetChainID, frameSnippetIDs);
 
@@ -3062,7 +3062,7 @@ public class Facebook {
             statistics.put("elapsedTimeOffsetChainsToFrameSnippets", Math.abs(System.currentTimeMillis() - elapsedTimeOffsetChainsToFrameSnippets));
         } catch (Exception eX) {
             int a = 1;
-            logger.error(eX);
+            logger("ERROR: " + eX.toString());
         }
 
         return statistics;
@@ -3185,7 +3185,7 @@ public class Facebook {
             frameSnippetIDsByOffsetChain = ((HashMap<Integer, HashMap<Integer, JSONObject>>) ((JSONObject)
                     analysisData.get("frameSnippetIDsByOffsetChain")).get("frameSnippetIDsByOffsetChains"));
         } catch (Exception e) {
-            logger.error(e);
+            logger("ERROR: " + e.toString());
         }
 
         // For each frame snippet...
@@ -3199,7 +3199,7 @@ public class Facebook {
                     determinedAsFacebookAd = (Boolean) frameSnippet.get("determinedAsFacebookAd");
                     generatedCroppingFiles = (List<String>) frameSnippet.get("generatedCroppingFiles");
                 } catch (Exception e) {
-                    logger.error(e);}
+                    logger("ERROR: " + e.toString());}
                 if (determinedAsFacebookAd) {
                     // Prepare the ad content for this frame snippet
                     String uuidForAdContent = System.currentTimeMillis()  + "." + UUID.randomUUID().toString();
@@ -3215,14 +3215,14 @@ public class Facebook {
                         try {
                             Files.copy(Paths.get(fileFrom.getAbsolutePath()), Paths.get(fileTo.getAbsolutePath()));
                         } catch (Exception e) {
-                            logger.error(e);}
+                            logger("ERROR: " + e.toString());}
                     }
                     // Write the analysis data for this ad to file
                     try {
                         analysisData.put("thisAdOffsetChainID",offsetChainID);
                         analysisData.put("thisAdFrameSnippetID",frameSnippetID);
                     } catch (Exception e) {
-                        logger.error(e);}
+                        logger("ERROR: " + e.toString());}
                     writeToJSON(new File(thisAdDirectory, "adContent.json"), analysisData);
                 }
             }
@@ -3255,7 +3255,7 @@ public class Facebook {
             wsColor = (Integer) frameSampleMetadata.get("wsColor");
             denotedMode = (String) frameSampleMetadata.get("denotedMode");
         } catch (Exception e) {
-            logger.error(e);}
+            logger("ERROR: " + e.toString());}
 
         JSONObject offsetChains = new JSONObject();
         JSONObject frameSnippetIDsByOffsetChain = new JSONObject();
@@ -3276,7 +3276,7 @@ public class Facebook {
                 analysisData.put("offsetChains", offsetChains);
                 analysisData.put("frameSnippetIDsByOffsetChain", frameSnippetIDsByOffsetChain);
             } catch (Exception e) {
-                logger.error(e);}
+                logger("ERROR: " + e.toString());}
             // Prepare the ad content for upload (if it exists)
             prepareAdContentForUpload(analysisData, adsFromDispatchDirectory, tempFacebookFrameSnippetsDirectory);
 
@@ -3294,7 +3294,7 @@ public class Facebook {
                 classificationAnalysis.put("frameSnippetIDsByOffsetChain", frameSnippetIDsByOffsetChain);
                 classificationAnalysis.put("analysisData", analysisData);
             } catch (Exception e) {
-                logger.error(e);}
+                logger("ERROR: " + e.toString());}
         }
         if (implementedOnAndroid) {
             // Finally delete the recording

@@ -44,6 +44,19 @@ public class Platform {
         }
     }
     
+    public static boolean createDirectory(File file, boolean mkdirs) {
+        try {
+            if (mkdirs) {
+                return file.mkdirs();
+            } else {
+                return file.mkdir();
+            }
+        } catch (Exception e) {
+            logger("Error creating directory: " + e.getMessage());
+            return false;
+        }
+    }
+    
     public static boolean directoryExists(String path) {
         File dir = new File(path);
         return dir.exists() && dir.isDirectory();
@@ -68,6 +81,14 @@ public class Platform {
     public static void platformInterpretationRoutine() {
         logger("Platform interpretation routine called");
         // Placeholder implementation
+    }
+    
+    public static void platformInterpretationRoutine(android.content.Context context, File rootDirectory, 
+            java.util.function.Function<com.adms.australianmobileadtoolkit.JSONXObject, com.adms.australianmobileadtoolkit.JSONXObject> videoMetadataFunction,
+            java.util.function.Function<com.adms.australianmobileadtoolkit.JSONXObject, Bitmap> frameGrabFunction,
+            boolean flag) {
+        logger("Platform interpretation routine called with parameters");
+        // TODO: Implement proper interpretation routine
     }
     
     // File operations
@@ -285,5 +306,15 @@ public class Platform {
             Thread.currentThread().interrupt();
             logger("Sleep interrupted: " + e.getMessage());
         }
+    }
+    
+    public static String filenameUnextended(File file) {
+        String name = file.getName();
+        int lastDot = name.lastIndexOf('.');
+        return lastDot > 0 ? name.substring(0, lastDot) : name;
+    }
+    
+    public static boolean writeToJSON(File file, JSONObject json) {
+        return writeToJSON(json, file.getAbsolutePath());
     }
 }
