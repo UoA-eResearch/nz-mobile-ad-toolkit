@@ -170,6 +170,15 @@ public class Platform {
         return Math.sqrt(variance);
     }
     
+    // Overload for List<Integer>
+    public static double getStandardDeviationInt(List<Integer> values) {
+        if (values == null || values.size() < 2) return 0.0;
+        
+        double mean = values.stream().mapToDouble(Integer::doubleValue).average().orElse(0.0);
+        double variance = values.stream().mapToDouble(val -> Math.pow(val - mean, 2)).average().orElse(0.0);
+        return Math.sqrt(variance);
+    }
+    
     public static double getStandardDeviationD(List<Double> values) {
         return getStandardDeviation(values);
     }
@@ -239,6 +248,20 @@ public class Platform {
         for (int i = 0; i < intervals.size() - 1; i += 2) {
             if (i + 1 < intervals.size()) {
                 ranges.add(new Range(intervals.get(i), intervals.get(i + 1)));
+            }
+        }
+        return ranges;
+    }
+    
+    // Overload for two-parameter version
+    public static List<Range> discreteIntervalsToRanges(List<Integer> intervals, List<Integer> consistent) {
+        List<Range> ranges = new ArrayList<>();
+        if (intervals == null || intervals.isEmpty() || consistent == null) return ranges;
+        
+        // Simple implementation - convert consistent list to ranges based on intervals
+        for (int i = 0; i < Math.min(intervals.size(), consistent.size() - 1); i += 2) {
+            if (i + 1 < consistent.size()) {
+                ranges.add(new Range(consistent.get(i), consistent.get(i + 1)));
             }
         }
         return ranges;

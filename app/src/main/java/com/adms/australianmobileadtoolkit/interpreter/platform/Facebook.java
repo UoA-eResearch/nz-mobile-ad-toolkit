@@ -204,7 +204,7 @@ public class Facebook {
                 colours.add(thisPixel);
             }
             thisFrameSignature.put(yy, frameSignaturePart);
-            thisFrameSignatureWS.put(yy, pixelDifferencePercentage(referenceColour, averageColours(Args(A("colors", colours)))) < 0.25); // TODO adjusting from 0.05
+            thisFrameSignatureWS.put(yy, pixelDifferencePercentage(referenceColour, averageColours(colours)) < 0.25); // TODO adjusting from 0.05
         }
 
 
@@ -623,7 +623,7 @@ public class Facebook {
                         highestRankedForExposureType = (JSONObject) highestRanked.get(exposureType);
                         highestRankedForExposureTypeSimilarity = (double) highestRankedForExposureType.get("wsSimilarity");
                     } catch (Exception e) {
-                        logger.info(e);}
+                        logger("INFO: " + e);}
                     if ((highestRankedForExposureType == null)
                             || ((highestRankedForExposureType != null) && (candidateSimilarity > highestRankedForExposureTypeSimilarity))) {
                         try {
@@ -782,7 +782,7 @@ public class Facebook {
                 if (thisBitmap != null) {
                     readings.put(f, facebookGenerateQuickReadingOnFrame(thisBitmap));
                 } else {
-                    logger.info("Reached 'null' Bitmap at frame "+f+"/"+nFrames);
+                    logger("INFO: " + "Reached 'null' Bitmap at frame "+f+"/"+nFrames);
                 }
             } catch (Exception e) {
                 logger("ERROR: " + e.toString());
@@ -1256,7 +1256,7 @@ public class Facebook {
                 output.put("error", e.getMessage());
             } catch (JSONException e2) {
 
-                logger("ERROR", e2);
+                logger("ERROR: " + e2.toString());
             }
         }
         return output;
@@ -1481,8 +1481,8 @@ public class Facebook {
                             scores.get(alt).add((int) Math.round(scoreValue));
                         }
                     }
-                    Double positiveMean = optionalGetDouble(scores.get("positives").stream().mapToDouble(x->x).average()) + getStandardDeviation(scores.get("positives")); // TODO added
-                    Double negativeMean = optionalGetDouble(scores.get("negatives").stream().mapToDouble(x->x).average()) + getStandardDeviation(scores.get("negatives")); // TODO added
+                    Double positiveMean = optionalGetDouble(scores.get("positives").stream().mapToDouble(x->x).average()) + getStandardDeviationInt(scores.get("positives")); // TODO added
+                    Double negativeMean = optionalGetDouble(scores.get("negatives").stream().mapToDouble(x->x).average()) + getStandardDeviationInt(scores.get("negatives")); // TODO added
                     Double combinedPct = optionalGetDouble(Arrays.asList(positiveMean, negativeMean).stream().mapToDouble(x -> x).average());
                     if ((chosenCoordThreshold == null) || (combinedPct > chosenCoordThreshold)) {
                         chosenCoordThreshold = combinedPct;
@@ -1890,7 +1890,7 @@ public class Facebook {
             // With the inhibited range, we are interested in the part that is prominent - we can derive this by taking the
             // smallest index of either FS and interpreting it as an interval - then we find a range of at least two
 
-            consistentListAsRanges = discreteIntervalsToRanges(FSInterval, consistentList);
+            consistentListAsRanges = discreteIntervalsToRanges(consistentList);
         }
         return consistentListAsRanges;
     }
@@ -2166,7 +2166,7 @@ public class Facebook {
                                         .filter(x -> thisFrameSignatureWS.get(x)).collect(Collectors.toList());
                                 //printJSON(isolatedFrameSignatureIntervals);
                                 //printJSON(discreteIntervalsToRanges(FSInterval, isolatedFrameSignatureIntervals));
-                                thisSnippet.put("whitespaceRanges", discreteIntervalsToRanges(FSInterval, isolatedFrameSignatureIntervals));
+                                thisSnippet.put("whitespaceRanges", discreteIntervalsToRanges(isolatedFrameSignatureIntervals));
                             } catch (Exception e) {
 
                                 logger("ERROR: " + e.toString());
@@ -2491,8 +2491,8 @@ public class Facebook {
         } catch (Exception eX) {
             int a = 1;
             int b = 2;
-            logger.info(eX.getStackTrace()[0].getLineNumber());
-            logger.info(eX.getCause());
+            logger("INFO: " + eX.getStackTrace()[0].getLineNumber());
+            logger("INFO: " + eX.getCause());
             logger("ERROR: " + eX.toString());
         }
 
