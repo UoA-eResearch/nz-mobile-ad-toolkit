@@ -3320,7 +3320,11 @@ public class Facebook {
         } else {
             // There is no guarantee that the facebookComprehensiveFramesSample method will succeed in creating the tempFacebookComprehensiveSample
             // directory. To overcome this, we need a logic here.
-            // TODO
+            logger("Warning: Facebook comprehensive frames sample method failed to create required directory structure");
+            // Ensure minimum required structure exists for further processing
+            if (tempFacebookComprehensiveSampleDirectory != null && !tempFacebookComprehensiveSampleDirectory.exists()) {
+                createDirectory(tempFacebookComprehensiveSampleDirectory.getAbsolutePath());
+            }
         }
         if (!implementedOnAndroid) {
             JSONObject classificationAnalysis = new JSONObject();

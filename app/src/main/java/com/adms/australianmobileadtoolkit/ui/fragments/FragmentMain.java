@@ -37,7 +37,7 @@ public class FragmentMain extends Fragment {
    private static final String TAG = "FragmentMain";
    // The SwitchCompat toggler used with screen-recording
    private static Switch mToggleButton;
-   // TODO - comment
+   // Registration button for user signup/login
    private Button mregisterButton;
    // De-bouncer variable on toggler
    private static boolean mToggleButtonDebouncerActivated;
@@ -66,7 +66,7 @@ public class FragmentMain extends Fragment {
                             Bundle savedInstanceState) {
       THIS_REGISTRATION_STATUS = (!Objects.equals(sharedPreferenceGet(
             getActivity(), "SHARED_PREFERENCE_REGISTERED", SHARED_PREFERENCE_REGISTERED_DEFAULT_VALUE), SHARED_PREFERENCE_REGISTERED_DEFAULT_VALUE));
-      // TODO Auto-generated method stub
+      // Initialize fragment view and setup UI components
 
       View view = inflater.inflate(R.layout.fragment_main, container, false);
 

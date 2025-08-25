@@ -77,7 +77,7 @@ public class MainActivity extends BaseActivity {
 
     public static String intentOfMainActivity = "NONE";
 
-    // TODO
+    // ViewModel for managing UI state
     private static ItemViewModel viewModel;
 
     /*

@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -165,7 +166,8 @@ public class FragmentRegistration1 extends Fragment implements AsyncResponse {
          transaction.addToBackStack(null);
          transaction.commit();
       } catch (Exception e) {
-         // TODO
+         // Log exception during fragment transaction
+         Log.e("FragmentRegistration1", "Error during fragment transaction", e);
          e.printStackTrace();
       }
    }
