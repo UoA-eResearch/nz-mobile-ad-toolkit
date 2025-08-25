@@ -147,12 +147,15 @@ public class Common {
    }
 
    /*
-    *
+    * Configuration constants - these could be moved to a settings file or configuration class
+    * for better maintainability and customization
+    */
+   public static double DEFAULT_BIN_AS_AVERAGES_LIKENESS = 2.0; // Configurable likeness threshold for binning values
+   
+   /*
     * This function snaps together values numerically by distance-based
     * 'likeness' into a dictionary keyed by averages of said values
-    *
-    * */
-   public static double DEFAULT_BIN_AS_AVERAGES_LIKENESS = 2.0; // TODO - settings
+    */
    public static HashMap<Double, List<Double>> binAsAverages(Arguments args) {
       double likeness = (Double) args.get("likeness", DEFAULT_BIN_AS_AVERAGES_LIKENESS);
       List<Double> input = (List<Double>) args.get("input", new ArrayList<Double>());

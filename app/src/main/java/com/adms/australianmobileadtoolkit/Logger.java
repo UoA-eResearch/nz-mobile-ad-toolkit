@@ -1,6 +1,12 @@
 package com.adms.australianmobileadtoolkit;
 
 import android.util.Log;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class Logger {
 
@@ -26,6 +32,39 @@ public class Logger {
    public static int DEFAULT_LOG_OUTPUT = LOG_OUTPUT_MOBILE;
    public static String DEFAULT_LOG_MESSAGE = "Hello World!";
    public static boolean DEFAULT_LOG_RECORD = true;
+   public static String DEFAULT_LOG_FILE_PATH = null; // Will use app's cache directory if null
+   
+   /**
+    * Writes log message to file if logRecord is true
+    */
+   private static void writeToLogFile(String logIn, String logType, String logMessage) {
+      try {
+         // Use a default log file path if none specified
+         String logFilePath = DEFAULT_LOG_FILE_PATH;
+         if (logFilePath == null) {
+            // Default to current working directory for test environments
+            logFilePath = System.getProperty("user.dir") + File.separator + "app_logs.txt";
+         }
+         
+         File logFile = new File(logFilePath);
+         
+         // Create parent directories if they don't exist
+         File parentDir = logFile.getParentFile();
+         if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+         }
+         
+         try (FileWriter writer = new FileWriter(logFile, true)) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            String timestamp = dateFormat.format(new Date());
+            String logEntry = String.format("[%s] [%s] %s: %s%n", timestamp, logType, logIn, logMessage);
+            writer.write(logEntry);
+         }
+      } catch (IOException e) {
+         // Log the error but don't throw exception to avoid breaking the calling code
+         Log.e("Logger", "Failed to write to log file: " + e.getMessage());
+      }
+   }
    public static void log(Arguments args) {
       int logOutput = (int) args.get("output", DEFAULT_LOG_OUTPUT);
       String logIn = (String) args.get("in", DEFAULT_LOG_IN);
@@ -51,7 +90,7 @@ public class Logger {
             break;
       }
       if (logRecord) {
-         // TODO - make it write to file somewhere
+         writeToLogFile(logIn, logType, logMessage);
       }
    }
 

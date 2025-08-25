@@ -1123,11 +1123,24 @@ public class Tiktok {
                     if (!candidateComparisons.isEmpty()) {
                         offsetChain.add(candidateComparisons.get(0));
                     } else {
-                        // TODO
+                        // No candidate comparison found, create a placeholder comparison
+                        // This handles cases where frame transitions don't have existing comparisons
+                        logger("Warning: No candidate comparison found for frames " + frameThis + " to " + frameNext);
+                        JSONObject placeholderComparison = new JSONObject();
+                        try {
+                            placeholderComparison.put("lastFrame", frameThis);
+                            placeholderComparison.put("currentFrame", frameNext);
+                            placeholderComparison.put("comparisonResult", new JSONObject().put("outcome", "NO_COMPARISON_AVAILABLE"));
+                            offsetChain.add(placeholderComparison);
+                        } catch (JSONException e) {
+                            logger("ERROR: Failed to create placeholder comparison: " + e.toString());
+                        }
                     }
                 }
             } else {
-                // TODO
+                // Less than 2 frames available, cannot create meaningful offset chain
+                // Log this situation and ensure statistics reflect the limitation
+                logger("Warning: Insufficient frames (" + runningListOfFrames.size() + ") to create offset chain, minimum 2 required");
             }
 
             // Capture the necessary statistics

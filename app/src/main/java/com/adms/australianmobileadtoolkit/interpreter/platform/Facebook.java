@@ -1900,7 +1900,8 @@ public class Facebook {
     }
 
 
-    // TODO - needs to return true dividers, calculated for each of the frames
+    // Generates a super offset chain by projecting dividers across all frames
+    // Note: True dividers are calculated from this super offset chain in trueDividersFromSuperOffsetChain()
     public static HashMap<Integer, List<Integer>> generateSuperOffsetChain(HashMap<Integer, Integer> thisOffsetChain, HashMap<Integer, List<Integer>> thisDividerMap) {
 
         System.out.println("thisOffsetChain: "+thisOffsetChain);
