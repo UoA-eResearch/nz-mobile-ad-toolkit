@@ -713,7 +713,14 @@ public class Tiktok {
 
 
             if (rangesToScan.isEmpty()) {
-                // TODO - have to carry fowrard best match if it exists
+                // No ranges to scan found, but carry forward best match if it exists
+                if (!similaritiesAtOffsets.isEmpty()) {
+                    logger("Warning: No ranges to scan, but carrying forward best existing match");
+                    foundReliableOffset = true;
+                    determinedOffsetAccuracy = optionalGetDouble(similaritiesAtOffsets.values().stream().mapToDouble(x -> x).max());
+                    determinedOffset = Collections.max(similaritiesAtOffsets.entrySet(), Map.Entry.comparingByValue()).getKey();
+                    determinedOffsetSTDev = stdevsAtOffsets.containsKey(determinedOffset) ? stdevsAtOffsets.get(determinedOffset) : 0.0;
+                }
                 breakOnRangeAbsence = true;
                 break;
             } else {
@@ -736,8 +743,8 @@ public class Tiktok {
                         break;
                     } else {
                         foundReliableOffset = true;
-                        determinedOffsetAccuracy = optionalGetDouble(similaritiesAtOffsets.values().stream().mapToDouble(x -> x).max()); // TODO
-                        determinedOffset = Collections.max(similaritiesAtOffsets.entrySet(), Map.Entry.comparingByValue()).getKey(); // TODO
+                        determinedOffsetAccuracy = optionalGetDouble(similaritiesAtOffsets.values().stream().mapToDouble(x -> x).max()); // Get maximum similarity score
+                        determinedOffset = Collections.max(similaritiesAtOffsets.entrySet(), Map.Entry.comparingByValue()).getKey(); // Get offset with highest similarity
                         determinedOffsetSTDev = stdevsAtOffsets.get(determinedOffset);
                     }
                 }

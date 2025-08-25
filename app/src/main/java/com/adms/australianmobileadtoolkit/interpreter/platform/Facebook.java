@@ -79,6 +79,10 @@ public class Facebook {
     public static Integer reservedAbsoluteWhitespaceColourLight = Color.rgb(252, 254, 253);
     public static Integer reservedAbsoluteWhitespaceColourDark = Color.rgb(35, 35, 35);
 
+    // Configuration constants for pixel difference thresholds
+    public static final double PIXEL_DIFFERENCE_THRESHOLD_WS = 0.25; // Whitespace detection threshold (adjusted from 0.05)
+    public static final double PIXEL_DIFFERENCE_THRESHOLD_COMPARISON = 0.25; // Pixel comparison threshold (adjusted from 0.05)
+
     /*
     *
     * Quick Readings
@@ -208,7 +212,7 @@ public class Facebook {
                 colours.add(thisPixel);
             }
             thisFrameSignature.put(yy, frameSignaturePart);
-            thisFrameSignatureWS.put(yy, pixelDifferencePercentage(referenceColour, averageColours(colours)) < 0.25); // TODO adjusting from 0.05
+            thisFrameSignatureWS.put(yy, pixelDifferencePercentage(referenceColour, averageColours(colours)) < PIXEL_DIFFERENCE_THRESHOLD_WS);
         }
 
 
@@ -236,7 +240,15 @@ public class Facebook {
 
 
 
-    // TODO - substantiate
+    /**
+     * Determines local maxima in frame signature comparisons by analyzing similarity scores at different offsets.
+     * A point is considered a local maximum if it exceeds neighboring values on both sides within the given interval
+     * and shows sufficient climb from the minimum values on both sides.
+     * 
+     * @param similaritiesAtOffsets Map of offset positions to their similarity scores
+     * @param interval The range around each point to consider for local maximum determination
+     * @return List of offset positions that represent local maxima
+     */
     public static List<Integer> facebookFrameSignaturesCompareDetermineLocalMaxima(HashMap<Integer, Double> similaritiesAtOffsets, Integer interval) {
         List<Integer> localMaxima = new ArrayList<>();
         List<Integer> orderedKeySet = similaritiesAtOffsets.keySet().stream().sorted().collect(Collectors.toList());
@@ -354,7 +366,7 @@ public class Facebook {
                                 if (m % sampleModulusInteger == 0) {
                                     if (frameSignatureWS.get(yy)) {
                                         nComparisons++;
-                                        if (pixelDifferencePercentage(FSA.get(yy).get(xx), wsColor) <= 0.25) { // TODO up from 0.05
+                                        if (pixelDifferencePercentage(FSA.get(yy).get(xx), wsColor) <= PIXEL_DIFFERENCE_THRESHOLD_COMPARISON) {
                                             pixelSimilarities.add(1.0 - pixelDifferencePercentage(FSA.get(yy).get(xx), frameB.getPixel(xx, yyAtOffset)));
                                             pixelSimilarities.add(1.0 - pixelDifferencePercentage(FSA.get(yy).get(xx), frameB.getPixel(xx, yyAtOffset)));
                                             pixelSimilarities.add(1.0 - pixelDifferencePercentage(FSA.get(yy).get(xx), frameB.getPixel(xx, yyAtOffset)));
@@ -429,7 +441,14 @@ public class Facebook {
 
 
             if (rangesToScan.isEmpty()) {
-                // TODO - have to carry fowrard best match if it exists
+                // No ranges to scan found, but carry forward best match if it exists
+                if (!similaritiesAtOffsets.isEmpty()) {
+                    logger("Warning: No ranges to scan, but carrying forward best existing match");
+                    foundReliableOffset = true;
+                    determinedOffsetAccuracy = optionalGetDouble(similaritiesAtOffsets.values().stream().mapToDouble(x -> x).max());
+                    determinedOffset = Collections.max(similaritiesAtOffsets.entrySet(), Map.Entry.comparingByValue()).getKey();
+                    determinedOffsetSTDev = stdevsAtOffsets.containsKey(determinedOffset) ? stdevsAtOffsets.get(determinedOffset) : 0.0;
+                }
                 breakOnRangeAbsence = true;
                 break;
             } else {
@@ -452,8 +471,8 @@ public class Facebook {
                         break;
                     } else {
                         foundReliableOffset = true;
-                        determinedOffsetAccuracy = optionalGetDouble(similaritiesAtOffsets.values().stream().mapToDouble(x -> x).max()); // TODO
-                        determinedOffset = Collections.max(similaritiesAtOffsets.entrySet(), Map.Entry.comparingByValue()).getKey(); // TODO
+                        determinedOffsetAccuracy = optionalGetDouble(similaritiesAtOffsets.values().stream().mapToDouble(x -> x).max()); // Get maximum similarity score
+                        determinedOffset = Collections.max(similaritiesAtOffsets.entrySet(), Map.Entry.comparingByValue()).getKey(); // Get offset with highest similarity
                         determinedOffsetSTDev = stdevsAtOffsets.get(determinedOffset);
                     }
                 }
@@ -1213,11 +1232,24 @@ public class Facebook {
                     if (!candidateComparisons.isEmpty()) {
                         offsetChain.add(candidateComparisons.get(0));
                     } else {
-                        // TODO
+                        // No candidate comparison found, create a placeholder comparison
+                        // This handles cases where frame transitions don't have existing comparisons
+                        logger("Warning: No candidate comparison found for frames " + frameThis + " to " + frameNext);
+                        JSONObject placeholderComparison = new JSONObject();
+                        try {
+                            placeholderComparison.put("lastFrame", frameThis);
+                            placeholderComparison.put("currentFrame", frameNext);
+                            placeholderComparison.put("comparisonResult", new JSONObject().put("outcome", "NO_COMPARISON_AVAILABLE"));
+                            offsetChain.add(placeholderComparison);
+                        } catch (JSONException e) {
+                            logger("ERROR: Failed to create placeholder comparison: " + e.toString());
+                        }
                     }
                 }
             } else {
-                // TODO
+                // Less than 2 frames available, cannot create meaningful offset chain
+                // Log this situation and ensure statistics reflect the limitation
+                logger("Warning: Insufficient frames (" + runningListOfFrames.size() + ") to create offset chain, minimum 2 required");
             }
 
             // Capture the necessary statistics
