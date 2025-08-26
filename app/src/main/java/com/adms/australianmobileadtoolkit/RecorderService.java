@@ -457,7 +457,7 @@ public final class RecorderService extends Service {
                 actionedStop = false;
                 Log.e(TAG, "Failed on stopRecording: ", e);
             }
-            //if (actionedStop) { // TODO
+            //if (actionedStop) { // Note: actionedStop condition check might be needed here for future implementation
                 recordingInProgress = false;
                 sendBroadcast(new Intent(this, InactivityReceiver.class)
                       .putExtra("INTENT_ACTION", "RECORDING_HAS_STOPPED"));  // TODO - checked for API migration

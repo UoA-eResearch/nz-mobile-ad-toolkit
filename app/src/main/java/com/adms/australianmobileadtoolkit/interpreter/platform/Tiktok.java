@@ -713,7 +713,14 @@ public class Tiktok {
 
 
             if (rangesToScan.isEmpty()) {
-                // TODO - have to carry fowrard best match if it exists
+                // No ranges to scan found, but carry forward best match if it exists
+                if (!similaritiesAtOffsets.isEmpty()) {
+                    logger("Warning: No ranges to scan, but carrying forward best existing match");
+                    foundReliableOffset = true;
+                    determinedOffsetAccuracy = optionalGetDouble(similaritiesAtOffsets.values().stream().mapToDouble(x -> x).max());
+                    determinedOffset = Collections.max(similaritiesAtOffsets.entrySet(), Map.Entry.comparingByValue()).getKey();
+                    determinedOffsetSTDev = stdevsAtOffsets.containsKey(determinedOffset) ? stdevsAtOffsets.get(determinedOffset) : 0.0;
+                }
                 breakOnRangeAbsence = true;
                 break;
             } else {
@@ -736,8 +743,8 @@ public class Tiktok {
                         break;
                     } else {
                         foundReliableOffset = true;
-                        determinedOffsetAccuracy = optionalGetDouble(similaritiesAtOffsets.values().stream().mapToDouble(x -> x).max()); // TODO
-                        determinedOffset = Collections.max(similaritiesAtOffsets.entrySet(), Map.Entry.comparingByValue()).getKey(); // TODO
+                        determinedOffsetAccuracy = optionalGetDouble(similaritiesAtOffsets.values().stream().mapToDouble(x -> x).max()); // Get maximum similarity score
+                        determinedOffset = Collections.max(similaritiesAtOffsets.entrySet(), Map.Entry.comparingByValue()).getKey(); // Get offset with highest similarity
                         determinedOffsetSTDev = stdevsAtOffsets.get(determinedOffset);
                     }
                 }
@@ -1123,11 +1130,24 @@ public class Tiktok {
                     if (!candidateComparisons.isEmpty()) {
                         offsetChain.add(candidateComparisons.get(0));
                     } else {
-                        // TODO
+                        // No candidate comparison found, create a placeholder comparison
+                        // This handles cases where frame transitions don't have existing comparisons
+                        logger("Warning: No candidate comparison found for frames " + frameThis + " to " + frameNext);
+                        JSONObject placeholderComparison = new JSONObject();
+                        try {
+                            placeholderComparison.put("lastFrame", frameThis);
+                            placeholderComparison.put("currentFrame", frameNext);
+                            placeholderComparison.put("comparisonResult", new JSONObject().put("outcome", "NO_COMPARISON_AVAILABLE"));
+                            offsetChain.add(placeholderComparison);
+                        } catch (JSONException e) {
+                            logger("ERROR: Failed to create placeholder comparison: " + e.toString());
+                        }
                     }
                 }
             } else {
-                // TODO
+                // Less than 2 frames available, cannot create meaningful offset chain
+                // Log this situation and ensure statistics reflect the limitation
+                logger("Warning: Insufficient frames (" + runningListOfFrames.size() + ") to create offset chain, minimum 2 required");
             }
 
             // Capture the necessary statistics

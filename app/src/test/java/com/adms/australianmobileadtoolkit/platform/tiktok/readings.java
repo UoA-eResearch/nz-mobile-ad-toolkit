@@ -84,7 +84,7 @@ public class readings {
     public void testTikTokComprehensiveReading() {
         IsolatedTest thisTest = new IsolatedTest("facebookComprehensiveReading");
         File tempDirectory = new File(thisTest.outputDirectory, "temp");
-        File thisScreenRecordingFile = new File(testScreenRecordingsDirectory, "facebook_dark_hq_large_slow_inapp_nonav_1.mp4"); // TODO
+        File thisScreenRecordingFile = new File(testScreenRecordingsDirectory, "tiktok_test_video.mp4"); // Use appropriate TikTok test video file
         writeToJSON(new File(thisTest.outputDirectory, "output.json"), tiktokComprehensiveReading(testContext, tempDirectory,
                 thisScreenRecordingFile, getVideoMetadataMachine, frameGrabMachine));
     }

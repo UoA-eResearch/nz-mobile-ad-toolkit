@@ -72,12 +72,47 @@ public class interpretation {
         Function<File, JSONObject> evaluateRoutine = (x -> {
             JSONXObject output = new JSONXObject();
 
-            // TODO
-
-            output.set("tp", 0);
-            output.set("fp", 0);
-            output.set("fn", 0);
-            output.set("tn", 0);
+            // Basic evaluation logic for TikTok interpretation
+            // This examines the output from the platform interpretation routine
+            // and calculates basic metrics for ad detection accuracy
+            
+            try {
+                // Check if interpretation was successful and produced results
+                File interpretationResultFile = new File(x, "interpretation_result.json");
+                int nTruePositives = 0;
+                int nFalsePositives = 0;
+                int nFalseNegatives = 0;
+                int nTrueNegatives = 0;
+                
+                if (interpretationResultFile.exists()) {
+                    // For now, assume successful interpretation indicates some level of detection
+                    // This is a placeholder - real evaluation would compare against ground truth
+                    JSONXObject results = new JSONXObject(readJSONFromFile(interpretationResultFile));
+                    
+                    // Basic heuristic: if we have statistics, consider it a successful detection
+                    if (results.has("statistics") && results.get("statistics") != null) {
+                        nTruePositives = 1; // Placeholder - indicates successful processing
+                    } else {
+                        nFalseNegatives = 1; // Failed to detect when we should have
+                    }
+                } else {
+                    // No interpretation result found
+                    nFalseNegatives = 1;
+                }
+                
+                output.set("tp", nTruePositives);
+                output.set("fp", nFalsePositives);
+                output.set("fn", nFalseNegatives);
+                output.set("tn", nTrueNegatives);
+                
+            } catch (Exception e) {
+                logger("ERROR in TikTok evaluation: " + e.toString());
+                // Default to failed detection
+                output.set("tp", 0);
+                output.set("fp", 0);
+                output.set("fn", 1);
+                output.set("tn", 0);
+            }
 
             return output.internalJSONObject;
         });

@@ -156,7 +156,8 @@ public class FFmpegFrameGrabberAndroid {
             return null;
          }
       } else if (ReturnCode.isCancel(session.getReturnCode())) {
-         // TODO
+         // Handle session cancellation - operation was cancelled by user or system
+         Log.d(TAG, "FFmpeg session was cancelled");
       } else {
          Log.d(TAG, String.format("Command failed with state %s and rc %s.%s", session.getState(), session.getReturnCode(), session.getFailStackTrace()));
       }

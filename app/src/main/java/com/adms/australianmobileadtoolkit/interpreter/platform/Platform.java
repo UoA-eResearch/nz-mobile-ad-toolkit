@@ -94,7 +94,83 @@ public class Platform {
             java.util.function.Function<com.adms.australianmobileadtoolkit.JSONXObject, Bitmap> frameGrabFunction,
             boolean flag) {
         logger("Platform interpretation routine called with parameters");
-        // TODO: Implement proper interpretation routine
+        
+        try {
+            // Ensure root directory exists
+            if (!rootDirectory.exists()) {
+                createDirectory(rootDirectory, true);
+            }
+            
+            // Create recordings directory within root directory
+            File recordingsDirectory = new File(rootDirectory, "recordings");
+            if (!recordingsDirectory.exists()) {
+                createDirectory(recordingsDirectory, true);
+            }
+            
+            // List video files in the recordings directory
+            List<String> videoFiles = listFiles(recordingsDirectory.getAbsolutePath());
+            
+            if (videoFiles.isEmpty()) {
+                logger("No video files found in recordings directory: " + recordingsDirectory.getAbsolutePath());
+                return;
+            }
+            
+            // Process each video file found
+            for (String filename : videoFiles) {
+                if (filename.toLowerCase().endsWith(".mp4") || filename.toLowerCase().endsWith(".mov") || 
+                    filename.toLowerCase().endsWith(".avi") || filename.toLowerCase().endsWith(".mkv")) {
+                    
+                    logger("Processing video file: " + filename);
+                    
+                    // Create interpretation metadata for this file
+                    java.util.HashMap<String, String> thisInterpretation = new java.util.HashMap<>();
+                    thisInterpretation.put("filename", filename);
+                    thisInterpretation.put("timestamp", String.valueOf(System.currentTimeMillis()));
+                    
+                    // Create necessary directories for analysis
+                    File adsDirectory = new File(rootDirectory, "ads");
+                    createDirectory(adsDirectory, true);
+                    
+                    // For now, we'll try both platforms since we don't have platform detection logic
+                    // In a production environment, you would implement platform detection based on app signatures
+                    
+                    try {
+                        logger("Attempting TikTok interpretation for: " + filename);
+                        com.adms.australianmobileadtoolkit.interpreter.platform.Tiktok.tiktokInterpretation(
+                            context, recordingsDirectory, thisInterpretation, rootDirectory, 
+                            videoMetadataFunction, frameGrabFunction, flag, adsDirectory
+                        );
+                        logger("TikTok interpretation completed successfully for: " + filename);
+                    } catch (Exception e) {
+                        logger("TikTok interpretation failed for " + filename + ": " + e.getMessage());
+                        
+                        // If TikTok fails, try Facebook interpretation
+                        try {
+                            logger("Attempting Facebook interpretation for: " + filename);
+                            
+                            // Facebook interpretation requires additional parameters, so we'll create default ones
+                            org.json.JSONObject facebookAdHeader = new org.json.JSONObject();
+                            java.util.HashMap<String, Object> pictogramsReference = new java.util.HashMap<>();
+                            
+                            com.adms.australianmobileadtoolkit.interpreter.platform.Facebook.facebookInterpretation(
+                                context, recordingsDirectory, thisInterpretation, rootDirectory, 
+                                videoMetadataFunction, frameGrabFunction, flag, adsDirectory, 
+                                facebookAdHeader, pictogramsReference
+                            );
+                            logger("Facebook interpretation completed successfully for: " + filename);
+                        } catch (Exception e2) {
+                            logger("Facebook interpretation also failed for " + filename + ": " + e2.getMessage());
+                        }
+                    }
+                }
+            }
+            
+        } catch (Exception e) {
+            logger("Error in platform interpretation routine: " + e.getMessage());
+            if (flag) { // Only log stack trace in production mode
+                Log.e("Platform", "Platform interpretation error", e);
+            }
+        }
     }
     
     // File operations

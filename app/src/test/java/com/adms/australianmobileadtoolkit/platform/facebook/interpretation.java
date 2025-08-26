@@ -174,7 +174,7 @@ public class interpretation {
         });
 
 
-        thisTest.applyToCases(localRoutine); // TODO
+        thisTest.applyToCases(localRoutine); // Apply test cases to local routine
 
         // OCR evaluation happens here
 
